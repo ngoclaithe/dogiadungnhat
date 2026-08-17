@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #0c2e2b;
+  --ink-soft: #163f3b;
+  --matcha: #4c7a58;
+  --copper: #b56a32;
+  --copper-soft: #c98952;
+  --paper: #f3efe6;
+  --cream: #faf7f1;
+  --stone: #6f6a61;
+  --line: #e2dacb;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-matcha: var(--matcha);
+  --color-copper: var(--copper);
+  --color-copper-soft: var(--copper-soft);
+  --color-paper: var(--paper);
+  --color-cream: var(--cream);
+  --color-stone: var(--stone);
+  --color-line: var(--line);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-body), "Be Vietnam Pro", system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), "Newsreader", Georgia, serif;
+}
+
+.paper-grid {
+  background-image:
+    linear-gradient(rgba(12, 46, 43, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(12, 46, 43, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.prose-ndn {
+  color: var(--ink);
+  line-height: 1.75;
+}
+
+.prose-ndn h2,
+.prose-ndn h3 {
+  font-family: var(--font-display), Georgia, serif;
+  margin-top: 1.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.prose-ndn p,
+.prose-ndn ul,
+.prose-ndn ol {
+  margin-bottom: 0.9rem;
+}
+
+.prose-ndn a {
+  color: var(--matcha);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose-ndn img {
+  border-radius: 1rem;
+  margin: 1rem 0;
+}
+
+.prose-ndn table {
+  width: 100%;
+  font-size: 0.9rem;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.prose-ndn td,
+.prose-ndn th {
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}

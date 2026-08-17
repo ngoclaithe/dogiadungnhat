@@ -1,0 +1,94 @@
+import type {
+  Category,
+  CmsPage,
+  Order,
+  Post,
+  Product,
+  ProductList,
+  SitemapPayload,
+} from "./types";
+
+function baseUrl() {
+  if (typeof window === "undefined") {
+    return process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+  }
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const isServer = typeof window === "undefined";
+  const res = await fetch(`${baseUrl()}${path}`, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+    ...(isServer && !init?.cache ? { next: { revalidate: 60 } } : {}),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const message =
+      (data as { message?: string | string[] }).message ?? `Lỗi API ${res.status}`;
+    throw new Error(Array.isArray(message) ? message.join(", ") : message);
+  }
+  return data as T;
+}
+
+export const api = {
+  health: () => request<{ ok: boolean }>("/health"),
+  sitemap: () => request<SitemapPayload>("/sitemap"),
+  categories: () => request<Category[]>("/categories"),
+  navCategories: () => request<Category[]>("/categories/nav"),
+  category: (slug: string) => request<Category>(`/categories/${slug}`),
+  products: (params: Record<string, string | number | undefined> = {}) => {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== "") qs.set(key, String(value));
+    });
+    const suffix = qs.toString() ? `?${qs}` : "";
+    return request<ProductList>(`/products${suffix}`);
+  },
+  featured: () => request<Product[]>("/products/featured"),
+  byCategory: (slug: string) => request<Product[]>(`/products/by-category/${slug}`),
+  product: (slug: string) => request<Product>(`/products/${slug}`),
+  related: (slug: string) => request<Product[]>(`/products/${slug}/related`),
+  posts: () => request<Post[]>("/posts"),
+  post: (slug: string) => request<Post>(`/posts/${slug}`),
+  pages: () => request<CmsPage[]>("/pages"),
+  page: (slug: string) => request<CmsPage>(`/pages/${slug}`),
+  login: (email: string, password: string) =>
+    request<{ accessToken: string; user: { id: string; email: string; name: string | null } }>(
+      "/auth/login",
+      { method: "POST", body: JSON.stringify({ email, password }), cache: "no-store" },
+    ),
+  register: (payload: { email: string; password: string; name?: string; phone?: string }) =>
+    request<{ accessToken: string; user: { id: string; email: string; name: string | null } }>(
+      "/auth/register",
+      { method: "POST", body: JSON.stringify(payload), cache: "no-store" },
+    ),
+  me: (token: string) =>
+    request("/auth/me", {
+      cache: "no-store",
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  createOrder: (payload: unknown) =>
+    request<Order>("/orders", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    }),
+  trackOrder: (code: string) =>
+    request<Order>(`/orders/track/${encodeURIComponent(code)}`, { cache: "no-store" }),
+  contact: (payload: unknown) =>
+    request<{ ok: boolean; message: string }>("/contact", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    }),
+  newsletter: (email: string) =>
+    request<{ ok: boolean; message: string }>("/newsletter", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+      cache: "no-store",
+    }),
+};

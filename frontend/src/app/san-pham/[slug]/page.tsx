@@ -18,11 +18,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   try {
     const product = await api.product(slug);
+    const description = stripHtml(product.shortDescription || product.description).slice(0, 160);
     return {
       title: product.name,
-      description:
-        product.shortDescription ||
-        `${product.name} — nội địa Nhật tại ${SITE.name}. ${formatPrice(product.price)}.`,
+      description: description || `${product.name} — nội địa Nhật tại ${SITE.name}. ${formatPrice(product.price)}.`,
       alternates: { canonical: `/san-pham/${slug}` },
       openGraph: { title: product.name, images: product.images[0]?.url ? [product.images[0].url] : [] },
     };

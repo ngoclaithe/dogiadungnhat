@@ -2,8 +2,8 @@ export function sanitizeContent(html?: string | null) {
   if (!html) return "";
   let out = html;
 
-  out = out.replace(/<img[^>]*class="[^"]*emoji[^"]*"[^>]*>/gi, "");
-  out = out.replace(/<img[^>]*emoji[^>]*>/gi, "");
+  out = out.replace(/<span[^>]*math-inline[^>]*>([\s\S]*?)<\/span>/gi, "$1");
+  out = out.replace(/data-math="[^"]*"/gi, "");
 
   out = out.replace(/\uFFFD+/g, "");
   out = out.replace(/(?:&#65533;)+/g, "");

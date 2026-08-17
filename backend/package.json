@@ -21,6 +21,7 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "seed": "prisma db seed",
+    "content:clean": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/cleanup-content.ts",
     "db:setup": "prisma generate && prisma db push && prisma db seed"
   },
   "prisma": {

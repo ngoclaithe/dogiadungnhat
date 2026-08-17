@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { sanitizeContent } from '../common/sanitize';
 import { PrismaService } from '../prisma/prisma.service';
 import { ProductQueryDto } from './dto/product-query.dto';
 
@@ -7,6 +8,18 @@ const productInclude = {
   category: true,
   images: { orderBy: { sortOrder: 'asc' as const } },
 };
+
+function cleanProduct<T extends { description?: string | null; shortDescription?: string | null }>(
+  product: T,
+): T {
+  return {
+    ...product,
+    description: product.description ? sanitizeContent(product.description) : product.description,
+    shortDescription: product.shortDescription
+      ? sanitizeContent(product.shortDescription)
+      : product.shortDescription,
+  };
+}
 
 @Injectable()
 export class ProductsService {
@@ -30,9 +43,9 @@ export class ProductsService {
 
     const orderBy: Prisma.ProductOrderByWithRelationInput[] =
       query.sort === 'price_asc'
-        ? [{ price: { sort: 'asc', nulls: 'last' } }]
+        ? [{ price: 'asc' }]
         : query.sort === 'price_desc'
-          ? [{ price: { sort: 'desc', nulls: 'last' } }]
+          ? [{ price: 'desc' }]
           : query.sort === 'name'
             ? [{ name: 'asc' }]
             : [{ featured: 'desc' }, { createdAt: 'desc' }];
@@ -49,7 +62,7 @@ export class ProductsService {
     ]);
 
     return {
-      items,
+      items: items.map((item) => cleanProduct(item)),
       total,
       page,
       limit,
@@ -63,7 +76,7 @@ export class ProductsService {
       include: productInclude,
     });
     if (!product) throw new NotFoundException('Không tìm thấy sản phẩm');
-    return product;
+    return cleanProduct(product);
   }
 
   async related(slug: string) {
@@ -72,29 +85,32 @@ export class ProductsService {
       select: { id: true, categoryId: true },
     });
     if (!product) return [];
-    return this.prisma.product.findMany({
+    const items = await this.prisma.product.findMany({
       where: { categoryId: product.categoryId, id: { not: product.id } },
       include: productInclude,
       take: 8,
       orderBy: { featured: 'desc' },
     });
+    return items.map((item) => cleanProduct(item));
   }
 
-  featured(limit = 8) {
-    return this.prisma.product.findMany({
+  async featured(limit = 8) {
+    const items = await this.prisma.product.findMany({
       where: { featured: true },
       include: productInclude,
       take: limit,
       orderBy: { updatedAt: 'desc' },
     });
+    return items.map((item) => cleanProduct(item));
   }
 
-  byCategory(slug: string, limit = 8) {
-    return this.prisma.product.findMany({
+  async byCategory(slug: string, limit = 8) {
+    const items = await this.prisma.product.findMany({
       where: { category: { slug } },
       include: productInclude,
       take: limit,
       orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
     });
+    return items.map((item) => cleanProduct(item));
   }
 }

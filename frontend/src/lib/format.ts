@@ -1,3 +1,5 @@
+import { stripHtml as stripHtmlContent } from "./sanitize";
+
 export function formatPrice(price: number | null | undefined) {
   if (price == null || price <= 0) return "Liên hệ";
   return new Intl.NumberFormat("vi-VN", {
@@ -38,15 +40,5 @@ export function formatDate(value: string) {
 }
 
 export function stripHtml(html?: string | null) {
-  if (!html) return "";
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#8211;/g, "–")
-    .replace(/\s+/g, " ")
-    .trim();
+  return stripHtmlContent(html);
 }

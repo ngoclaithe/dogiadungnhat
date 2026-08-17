@@ -5,7 +5,7 @@ import { SITE } from "@/lib/constants";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -26,15 +26,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export async function generateStaticParams() {
-  try {
-    const cats = await api.categories();
-    return cats.map((c) => ({ slug: c.slug }));
-  } catch {
-    return [];
-  }
-}
-
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const { sort, page } = await searchParams;
@@ -44,12 +35,23 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   } catch {
     notFound();
   }
-  const list = await api.products({
-    category: slug,
-    sort: sort || "newest",
-    page: Number(page || 1),
+  let list = {
+    items: [] as Awaited<ReturnType<typeof api.products>>["items"],
+    total: 0,
+    page: 1,
     limit: 12,
-  });
+    pageCount: 0,
+  };
+  try {
+    list = await api.products({
+      category: slug,
+      sort: sort || "newest",
+      page: Number(page || 1),
+      limit: 12,
+    });
+  } catch {
+    list = { items: [], total: 0, page: 1, limit: 12, pageCount: 0 };
+  }
 
   const sorts = [
     { value: "newest", label: "Mới nhất" },

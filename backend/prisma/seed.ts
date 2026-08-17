@@ -4,6 +4,7 @@ import {
   type Product,
 } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import { sanitizeContent, stripHtml } from '../src/common/sanitize';
 
 const prisma = new PrismaClient();
 const SOURCE = process.env.SOURCE_SITE ?? 'https://dogiadungnhat.com.vn';
@@ -64,21 +65,6 @@ const CATEGORY_COPY: Record<string, string> = {
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function stripHtml(html?: string | null) {
-  if (!html) return '';
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#8211;/g, '–')
-    .replace(/&#8220;|&#8221;/g, '"')
-    .replace(/\s+/g, ' ')
-    .trim();
 }
 
 function guessBrand(name: string) {
@@ -317,7 +303,7 @@ async function importFromSource() {
           update: {
             name: item.name,
             sku: item.sku || null,
-            description: item.description || text,
+            description: sanitizeContent(item.description || text),
             shortDescription: text.slice(0, 280),
             price,
             compareAtPrice: compareAt,
@@ -332,7 +318,7 @@ async function importFromSource() {
             name: item.name,
             slug: item.slug,
             sku: item.sku || null,
-            description: item.description || text,
+            description: sanitizeContent(item.description || text),
             shortDescription: text.slice(0, 280),
             price,
             compareAtPrice: compareAt,
@@ -463,6 +449,19 @@ async function main() {
   }
 
   const products = await prisma.product.findMany();
+  for (const product of products) {
+    await prisma.product.update({
+      where: { id: product.id },
+      data: {
+        description: product.description
+          ? sanitizeContent(product.description)
+          : product.description,
+        shortDescription: product.shortDescription
+          ? sanitizeContent(product.shortDescription)
+          : product.shortDescription,
+      },
+    });
+  }
   if (products.length) {
     await seedAuthAndSampleOrder(products);
   }

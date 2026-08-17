@@ -5,6 +5,7 @@ import { Container, SectionHeading } from "@/components/ui";
 import { api } from "@/lib/api";
 import { SITE } from "@/lib/constants";
 import { conditionLabel, discountPercent, formatPrice, stripHtml } from "@/lib/format";
+import { sanitizeContent } from "@/lib/sanitize";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -124,7 +125,7 @@ export default async function ProductPage({ params }: Props) {
       {product.description ? (
         <article
           className="prose-ndn mt-12 rounded-[2rem] border border-line bg-cream p-6 sm:p-10"
-          dangerouslySetInnerHTML={{ __html: product.description }}
+          dangerouslySetInnerHTML={{ __html: sanitizeContent(product.description) }}
         />
       ) : null}
 

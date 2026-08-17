@@ -3,6 +3,8 @@ import { Container } from "@/components/ui";
 import { api } from "@/lib/api";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Tìm kiếm",
   robots: { index: false },

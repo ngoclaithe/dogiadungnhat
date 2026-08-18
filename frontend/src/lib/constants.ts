@@ -1,6 +1,7 @@
 export const SITE = {
   name: "Nội Địa Nhật",
   shortName: "NDN",
+  logo: "/images/logo_ndn.png",
   tagline: "Gia dụng Nhật — chọn đúng, dùng bền",
   description:
     "Cửa hàng gia dụng nội địa Nhật: điều hòa, máy giặt sấy, tủ lạnh, bếp từ, máy rửa bát. Hàng mới và đã qua sử dụng, bảo hành dài hạn.",

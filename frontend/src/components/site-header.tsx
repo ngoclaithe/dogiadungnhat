@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -59,9 +60,14 @@ export function SiteHeader({ categories }: { categories: Category[] }) {
       <div className="border-b border-line bg-cream/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-4 sm:px-6">
           <Link href="/" className="flex shrink-0 items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-full bg-ink text-sm font-semibold tracking-wider text-cream">
-              {SITE.shortName}
-            </span>
+            <Image
+              src={SITE.logo}
+              alt={SITE.name}
+              width={52}
+              height={52}
+              className="h-11 w-11 shrink-0 rounded-full object-cover"
+              priority
+            />
             <span className="leading-tight">
               <span className="block font-display text-xl text-ink">{SITE.name}</span>
               <span className="block text-[11px] uppercase tracking-[0.16em] text-stone">

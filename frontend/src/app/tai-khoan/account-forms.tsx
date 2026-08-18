@@ -132,21 +132,21 @@ function AuthForms({
           Đăng ký
         </button>
       </div>
-      <form onSubmit={onSubmit} className="grid gap-4">
+      <form onSubmit={onSubmit} className="grid max-w-md gap-4">
         {mode === "register" ? (
           <>
-            <input name="name" placeholder="Họ tên" className="rounded-2xl border border-line px-4 py-3" />
-            <input name="phone" placeholder="Số điện thoại" className="rounded-2xl border border-line px-4 py-3" />
+            <input name="name" placeholder="Họ tên" className="rounded-xl border border-line bg-paper px-4 py-2.5" />
+            <input name="phone" placeholder="Số điện thoại" className="rounded-xl border border-line bg-paper px-4 py-2.5" />
           </>
         ) : null}
-        <input name="email" type="email" required placeholder="Email" className="rounded-2xl border border-line px-4 py-3" />
+        <input name="email" type="email" required placeholder="Email" className="rounded-xl border border-line bg-paper px-4 py-2.5" />
         <input
           name="password"
           type="password"
           required
           minLength={6}
           placeholder="Mật khẩu"
-          className="rounded-2xl border border-line px-4 py-3"
+          className="rounded-xl border border-line bg-paper px-4 py-2.5"
         />
         {mode === "register" ? (
           <input
@@ -155,18 +155,17 @@ function AuthForms({
             required
             minLength={6}
             placeholder="Xác nhận mật khẩu"
-            className="rounded-2xl border border-line px-4 py-3"
+            className="rounded-xl border border-line bg-paper px-4 py-2.5"
           />
         ) : null}
         <button
           type="submit"
           disabled={loading}
-          className="rounded-full bg-ink py-3 text-sm font-semibold text-cream disabled:opacity-60"
+          className="w-fit rounded-full bg-ink px-6 py-2.5 text-sm font-semibold text-cream disabled:opacity-60"
         >
           {loading ? "Đang xử lý..." : mode === "login" ? "Đăng nhập" : "Tạo tài khoản"}
         </button>
       </form>
-      <p className="mt-4 text-xs text-stone">Tài khoản demo: demo@noidianhat.vn / demo1234</p>
       {message ? <p className="mt-3 text-sm text-copper">{message}</p> : null}
     </div>
   );
@@ -216,7 +215,7 @@ function AccountDashboard({
   return (
     <div className="grid gap-6">
       <div className="rounded-[2rem] border border-line bg-cream p-6 sm:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-copper">Xin chào</p>
             <h2 className="mt-1 font-display text-3xl">{user.name || user.email}</h2>
@@ -225,64 +224,89 @@ function AccountDashboard({
           <button
             type="button"
             onClick={onLogout}
-            className="rounded-full border border-line px-4 py-2 text-sm"
+            className="rounded-full border border-line px-4 py-2 text-sm text-stone transition hover:border-copper hover:text-ink"
           >
             Đăng xuất
           </button>
         </div>
+
         {nextPath === "/thanh-toan" ? (
           <a
             href="/thanh-toan"
-            className="mt-5 inline-block rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-cream"
+            className="mt-5 inline-flex rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-cream"
           >
             Tiếp tục thanh toán
           </a>
         ) : null}
-        <form onSubmit={onSubmit} className="mt-6 grid gap-4 sm:grid-cols-2">
-          <input
-            name="name"
-            defaultValue={user.name ?? ""}
-            placeholder="Họ tên"
-            className="rounded-2xl border border-line px-4 py-3"
-          />
-          <input
-            name="phone"
-            defaultValue={user.phone ?? ""}
-            placeholder="Số điện thoại"
-            className="rounded-2xl border border-line px-4 py-3"
-          />
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-full bg-ink py-3 text-sm font-semibold text-cream sm:col-span-2 disabled:opacity-60"
-          >
-            {saving ? "Đang lưu..." : "Cập nhật hồ sơ"}
-          </button>
+
+        <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          <p className="text-sm font-medium text-ink">Thông tin liên hệ</p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-1.5 text-sm">
+              <span className="text-stone">Họ tên</span>
+              <input
+                name="name"
+                defaultValue={user.name ?? ""}
+                placeholder="Nguyễn Văn A"
+                className="rounded-xl border border-line bg-paper px-4 py-2.5"
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm">
+              <span className="text-stone">Số điện thoại</span>
+              <input
+                name="phone"
+                defaultValue={user.phone ?? ""}
+                placeholder="09xx xxx xxx"
+                className="rounded-xl border border-line bg-paper px-4 py-2.5"
+              />
+            </label>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-cream disabled:opacity-60"
+            >
+              {saving ? "Đang lưu..." : "Lưu thay đổi"}
+            </button>
+            {profileMessage ? (
+              <p className={`text-sm ${profileMessage.startsWith("Đã") ? "text-matcha" : "text-copper"}`}>
+                {profileMessage}
+              </p>
+            ) : null}
+          </div>
         </form>
-        {profileMessage ? <p className="mt-3 text-sm text-matcha">{profileMessage}</p> : null}
       </div>
 
       <div className="rounded-[2rem] border border-line bg-cream p-6 sm:p-8">
         <h3 className="font-display text-2xl">Đơn hàng của bạn</h3>
         {ordersError ? <p className="mt-3 text-sm text-copper">{ordersError}</p> : null}
         {!ordersError && !orders.length ? (
-          <p className="mt-3 text-sm text-stone">Chưa có đơn nào gắn với tài khoản này.</p>
+          <p className="mt-4 text-sm text-stone">Chưa có đơn nào gắn với tài khoản này.</p>
         ) : (
-          <ul className="mt-5 divide-y divide-line">
+          <ul className="mt-5 space-y-4">
             {orders.map((order) => (
-              <li key={order.id} className="py-4">
+              <li
+                key={order.id}
+                className="rounded-2xl border border-line bg-paper p-4 sm:p-5"
+              >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.16em] text-copper">{order.code}</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-copper">
+                      {order.code}
+                    </p>
                     <p className="mt-1 font-medium">{orderStatusLabel(order.status)}</p>
                     <p className="mt-1 text-xs text-stone">{formatDate(order.createdAt)}</p>
                   </div>
                   <p className="font-semibold">{formatPrice(order.total)}</p>
                 </div>
-                <ul className="mt-3 space-y-1 text-sm text-stone">
+                <ul className="mt-3 space-y-1 border-t border-line pt-3 text-sm text-stone">
                   {order.items.map((item) => (
-                    <li key={item.id}>
-                      {item.name} × {item.quantity}
+                    <li key={item.id} className="flex justify-between gap-3">
+                      <span className="line-clamp-1">
+                        {item.name} × {item.quantity}
+                      </span>
+                      <span className="shrink-0">{formatPrice(item.price * item.quantity)}</span>
                     </li>
                   ))}
                 </ul>

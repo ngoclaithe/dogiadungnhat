@@ -104,20 +104,20 @@ function AuthForms({
   }
 
   return (
-    <div className="rounded-[2rem] border border-line bg-cream p-6 sm:p-8">
+    <div className="mx-auto max-w-md rounded-[2rem] border border-line bg-cream p-6 sm:p-8">
       {nextPath === "/thanh-toan" ? (
-        <p className="mb-5 rounded-2xl bg-paper px-4 py-3 text-sm text-stone">
+        <p className="mb-5 rounded-xl bg-paper px-4 py-3 text-sm text-stone">
           Đăng nhập để lưu đơn vào tài khoản, rồi quay lại thanh toán.
         </p>
       ) : null}
-      <div className="mb-6 flex gap-2">
+      <div className="mb-6 grid grid-cols-2 gap-2">
         <button
           type="button"
           onClick={() => {
             setMode("login");
             setMessage("");
           }}
-          className={`rounded-full px-4 py-2 text-sm ${mode === "login" ? "bg-ink text-cream" : "border border-line"}`}
+          className={`rounded-full px-4 py-2.5 text-sm font-medium ${mode === "login" ? "bg-ink text-cream" : "border border-line bg-paper text-stone"}`}
         >
           Đăng nhập
         </button>
@@ -127,26 +127,26 @@ function AuthForms({
             setMode("register");
             setMessage("");
           }}
-          className={`rounded-full px-4 py-2 text-sm ${mode === "register" ? "bg-ink text-cream" : "border border-line"}`}
+          className={`rounded-full px-4 py-2.5 text-sm font-medium ${mode === "register" ? "bg-ink text-cream" : "border border-line bg-paper text-stone"}`}
         >
           Đăng ký
         </button>
       </div>
-      <form onSubmit={onSubmit} className="grid max-w-md gap-4">
+      <form onSubmit={onSubmit} className="grid gap-4">
         {mode === "register" ? (
           <>
-            <input name="name" placeholder="Họ tên" className="rounded-xl border border-line bg-paper px-4 py-2.5" />
-            <input name="phone" placeholder="Số điện thoại" className="rounded-xl border border-line bg-paper px-4 py-2.5" />
+            <input name="name" placeholder="Họ tên" className="w-full rounded-xl border border-line bg-paper px-4 py-3" />
+            <input name="phone" placeholder="Số điện thoại" className="w-full rounded-xl border border-line bg-paper px-4 py-3" />
           </>
         ) : null}
-        <input name="email" type="email" required placeholder="Email" className="rounded-xl border border-line bg-paper px-4 py-2.5" />
+        <input name="email" type="email" required placeholder="Email" className="w-full rounded-xl border border-line bg-paper px-4 py-3" />
         <input
           name="password"
           type="password"
           required
           minLength={6}
           placeholder="Mật khẩu"
-          className="rounded-xl border border-line bg-paper px-4 py-2.5"
+          className="w-full rounded-xl border border-line bg-paper px-4 py-3"
         />
         {mode === "register" ? (
           <input
@@ -155,18 +155,18 @@ function AuthForms({
             required
             minLength={6}
             placeholder="Xác nhận mật khẩu"
-            className="rounded-xl border border-line bg-paper px-4 py-2.5"
+            className="w-full rounded-xl border border-line bg-paper px-4 py-3"
           />
         ) : null}
         <button
           type="submit"
           disabled={loading}
-          className="w-fit rounded-full bg-ink px-6 py-2.5 text-sm font-semibold text-cream disabled:opacity-60"
+          className="w-full rounded-full bg-ink py-3 text-sm font-semibold text-cream disabled:opacity-60"
         >
           {loading ? "Đang xử lý..." : mode === "login" ? "Đăng nhập" : "Tạo tài khoản"}
         </button>
       </form>
-      {message ? <p className="mt-3 text-sm text-copper">{message}</p> : null}
+      {message ? <p className="mt-4 text-sm text-copper">{message}</p> : null}
     </div>
   );
 }

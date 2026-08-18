@@ -4,12 +4,11 @@ import { useAuth } from "@/components/auth-provider";
 import { useCart } from "@/components/cart-provider";
 import type { Product } from "@/lib/types";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
-function loginHref(pathname: string, search: string) {
-  const next = `${pathname}${search}`;
-  return `/tai-khoan?next=${encodeURIComponent(next)}`;
+function loginHref(pathname: string) {
+  return `/tai-khoan?next=${encodeURIComponent(pathname)}`;
 }
 
 export function AddToCartButton({
@@ -27,12 +26,11 @@ export function AddToCartButton({
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [done, setDone] = useState(false);
 
   async function handleAdd() {
     if (!user) {
-      router.push(loginHref(pathname, searchParams.toString() ? `?${searchParams}` : ""));
+      router.push(loginHref(pathname));
       return;
     }
     await add(product, quantity);
@@ -64,12 +62,11 @@ export function ProductActions({ product }: { product: Product }) {
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [qty, setQty] = useState(1);
   const [done, setDone] = useState(false);
 
   function goLogin() {
-    router.push(loginHref(pathname, searchParams.toString() ? `?${searchParams}` : ""));
+    router.push(loginHref(pathname));
   }
 
   async function handleAdd() {

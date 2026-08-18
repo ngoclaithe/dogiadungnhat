@@ -67,7 +67,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [authReady, user?.id]);
+  }, [authReady, user]);
 
   const applyItems = useCallback((next: CartItem[]) => {
     setItems(next);

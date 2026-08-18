@@ -37,11 +37,17 @@ export const metadata: Metadata = {
     "tủ lạnh hitachi",
     "bếp từ nhật",
   ],
+  icons: {
+    icon: [{ url: "/images/logo_ndn.svg", type: "image/svg+xml" }],
+    shortcut: "/images/logo_ndn.svg",
+    apple: "/images/logo_ndn.png",
+  },
   openGraph: {
     title: SITE.name,
     description: SITE.description,
     locale: "vi_VN",
     type: "website",
+    images: [{ url: SITE.logo, alt: SITE.name }],
   },
   alternates: { canonical: "/" },
 };

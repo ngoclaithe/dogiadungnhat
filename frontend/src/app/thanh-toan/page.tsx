@@ -49,22 +49,23 @@ export default function CheckoutPage() {
 
   if (!cartReady || !authReady) {
     return (
-      <Container className="py-12">
-        <h1 className="font-display text-4xl">Thanh toán</h1>
-        <p className="mt-4 text-stone">Đang tải đơn hàng...</p>
+      <Container className="py-10 sm:py-12">
+        <div className="mx-auto max-w-md rounded-[2rem] border border-line bg-cream p-6 sm:p-8 text-sm text-stone">
+          Đang tải đơn hàng...
+        </div>
       </Container>
     );
   }
 
   if (!user) {
     return (
-      <Container className="py-12">
-        <h1 className="font-display text-4xl">Thanh toán</h1>
-        <div className="mt-6 max-w-lg rounded-[2rem] border border-line bg-cream p-8">
-          <p className="text-stone">Vui lòng đăng nhập để thanh toán giỏ hàng của bạn.</p>
+      <Container className="py-10 sm:py-12">
+        <div className="mx-auto max-w-md rounded-[2rem] border border-line bg-cream p-6 sm:p-8 text-center">
+          <h1 className="font-display text-3xl">Thanh toán</h1>
+          <p className="mt-3 text-sm text-stone">Vui lòng đăng nhập để thanh toán giỏ hàng của bạn.</p>
           <Link
             href="/tai-khoan?next=/thanh-toan"
-            className="mt-5 inline-block rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-cream"
+            className="mt-6 block w-full rounded-full bg-ink py-3 text-sm font-semibold text-cream"
           >
             Đăng nhập
           </Link>
@@ -75,14 +76,14 @@ export default function CheckoutPage() {
 
   if (!items.length && !code) {
     return (
-      <Container className="py-12">
-        <h1 className="font-display text-4xl">Thanh toán</h1>
-        <p className="mt-4 text-stone">
-          Giỏ hàng trống.{" "}
-          <Link href="/gio-hang" className="text-matcha underline">
+      <Container className="py-10 sm:py-12">
+        <div className="mx-auto max-w-md rounded-[2rem] border border-line bg-cream p-6 sm:p-8 text-center">
+          <h1 className="font-display text-3xl">Thanh toán</h1>
+          <p className="mt-3 text-sm text-stone">Giỏ hàng trống.</p>
+          <Link href="/gio-hang" className="mt-6 block w-full rounded-full bg-ink py-3 text-sm font-semibold text-cream">
             Quay lại giỏ
           </Link>
-        </p>
+        </div>
       </Container>
     );
   }

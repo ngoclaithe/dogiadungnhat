@@ -53,6 +53,11 @@ export function SiteHeader({ categories }: { categories: Category[] }) {
             <Link href="/lien-he" className="hover:text-cream">
               Liên hệ
             </Link>
+            {user?.role === "ADMIN" ? (
+              <Link href="/admin" className="hover:text-cream">
+                Quản trị
+              </Link>
+            ) : null}
           </nav>
         </div>
       </div>

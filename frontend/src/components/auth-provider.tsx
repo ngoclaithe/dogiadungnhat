@@ -1,6 +1,6 @@
 "use client";
 
-import { api, TOKEN_KEY } from "@/lib/api";
+import { api } from "@/lib/api";
 import type { AuthUser } from "@/lib/types";
 import {
   createContext,
@@ -22,7 +22,7 @@ type AuthContextValue = {
     name?: string;
     phone?: string;
   }) => Promise<AuthUser>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateProfile: (payload: { name?: string; phone?: string }) => Promise<AuthUser>;
 };
 
@@ -32,28 +32,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [ready, setReady] = useState(false);
 
-  const persist = useCallback((token: string, nextUser: AuthUser) => {
-    localStorage.setItem(TOKEN_KEY, token);
-    setUser(nextUser);
-  }, []);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
+  const logout = useCallback(async () => {
+    try {
+      await api.logout();
+    } catch {
+      /* ignore */
+    }
     setUser(null);
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) {
-      setReady(true);
-      return;
-    }
     api
       .me()
       .then(setUser)
-      .catch(() => logout())
+      .catch(() => setUser(null))
       .finally(() => setReady(true));
-  }, [logout]);
+  }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -61,12 +55,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ready,
       login: async (email, password) => {
         const payload = await api.login(email, password);
-        persist(payload.accessToken, payload.user);
+        setUser(payload.user);
         return payload.user;
       },
       register: async (input) => {
         const payload = await api.register(input);
-        persist(payload.accessToken, payload.user);
+        setUser(payload.user);
         return payload.user;
       },
       logout,
@@ -76,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return next;
       },
     }),
-    [logout, persist, ready, user],
+    [logout, ready, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

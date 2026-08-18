@@ -9,8 +9,6 @@ import type {
   SitemapPayload,
 } from "./types";
 
-export const TOKEN_KEY = "ndn-token";
-
 function baseUrl() {
   if (typeof window === "undefined") {
     return process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
@@ -18,25 +16,17 @@ function baseUrl() {
   return process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 }
 
-function tokenFromStorage() {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(TOKEN_KEY);
-}
-
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const isServer = typeof window === "undefined";
-  const token = tokenFromStorage();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(init?.headers as Record<string, string> | undefined),
   };
-  if (token && !headers.Authorization) {
-    headers.Authorization = `Bearer ${token}`;
-  }
 
   const res = await fetch(`${baseUrl()}${path}`, {
     ...init,
     headers,
+    credentials: isServer ? init?.credentials : (init?.credentials ?? "include"),
     ...(isServer && !init?.cache ? { next: { revalidate: 60 } } : {}),
   });
   const data = await res.json().catch(() => ({}));
@@ -49,7 +39,6 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export type AuthPayload = {
-  accessToken: string;
   user: AuthUser;
 };
 
@@ -96,6 +85,11 @@ export const api = {
       body: JSON.stringify(payload),
       cache: "no-store",
     }),
+  logout: () =>
+    request<{ ok: boolean }>("/auth/logout", {
+      method: "POST",
+      cache: "no-store",
+    }),
   me: () => request<AuthUser>("/auth/me", { cache: "no-store" }),
   updateProfile: (payload: { name?: string; phone?: string }) =>
     request<AuthUser>("/auth/me", {
@@ -112,6 +106,30 @@ export const api = {
   myOrders: () => request<Order[]>("/orders/mine", { cache: "no-store" }),
   trackOrder: (code: string) =>
     request<Order>(`/orders/track/${encodeURIComponent(code)}`, { cache: "no-store" }),
+  adminOrders: () => request<Order[]>("/admin/orders", { cache: "no-store" }),
+  adminUpdateOrderStatus: (id: string, status: string) =>
+    request<Order>(`/admin/orders/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+      cache: "no-store",
+    }),
+  adminPages: () => request<CmsPage[]>("/admin/pages", { cache: "no-store" }),
+  adminUpdatePage: (slug: string, payload: { title?: string; content?: string }) =>
+    request<CmsPage>(`/admin/pages/${encodeURIComponent(slug)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    }),
+  adminPosts: () => request<Post[]>("/admin/posts", { cache: "no-store" }),
+  adminUpdatePost: (
+    slug: string,
+    payload: { title?: string; excerpt?: string; content?: string },
+  ) =>
+    request<Post>(`/admin/posts/${encodeURIComponent(slug)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    }),
   contact: (payload: unknown) =>
     request<{ ok: boolean; message: string }>("/contact", {
       method: "POST",

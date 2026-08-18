@@ -86,6 +86,7 @@ export type AuthUser = {
   email: string;
   name: string | null;
   phone: string | null;
+  role: "CUSTOMER" | "ADMIN";
 };
 
 export type CartItem = {

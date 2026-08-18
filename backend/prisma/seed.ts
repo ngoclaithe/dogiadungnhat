@@ -213,15 +213,37 @@ async function seedPages() {
 }
 
 async function seedAuthAndSampleOrder(products: Product[]) {
-  const passwordHash = await bcrypt.hash('demo1234', 10);
+  const demoHash = await bcrypt.hash('demo1234', 10);
+  const adminHash = await bcrypt.hash('admin1234', 10);
   const user = await prisma.user.upsert({
     where: { email: 'demo@noidianhat.vn' },
-    update: { passwordHash, name: 'Khách demo', phone: '0937445330' },
-    create: {
-      email: 'demo@noidianhat.vn',
-      passwordHash,
+    update: {
+      passwordHash: demoHash,
       name: 'Khách demo',
       phone: '0937445330',
+      role: 'CUSTOMER',
+    },
+    create: {
+      email: 'demo@noidianhat.vn',
+      passwordHash: demoHash,
+      name: 'Khách demo',
+      phone: '0937445330',
+      role: 'CUSTOMER',
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'admin@noidianhat.vn' },
+    update: {
+      passwordHash: adminHash,
+      name: 'Quản trị',
+      role: 'ADMIN',
+    },
+    create: {
+      email: 'admin@noidianhat.vn',
+      passwordHash: adminHash,
+      name: 'Quản trị',
+      role: 'ADMIN',
     },
   });
 

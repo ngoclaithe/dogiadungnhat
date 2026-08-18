@@ -17,6 +17,7 @@ fi
 cat > /home/dogiadungnhat/backend/.env << 'EOF'
 DATABASE_URL="postgresql://postgres:test1234@localhost:5432/nhatnoidia?schema=public"
 JWT_SECRET="ndn-prod-7f3a9c2e8b14d6f0"
+COOKIE_DOMAIN=".dosutech.site"
 PORT=4088
 FRONTEND_URL="https://dogiadungnhat.dosutech.site"
 SOURCE_SITE="https://dogiadungnhat.com.vn"

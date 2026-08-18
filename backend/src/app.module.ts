@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
+import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ContactModule } from './contact/contact.module';
@@ -20,6 +21,7 @@ import { ProductsModule } from './products/products.module';
     PostsModule,
     PagesModule,
     AuthModule,
+    AdminModule,
     OrdersModule,
     ContactModule,
     NewsletterModule,

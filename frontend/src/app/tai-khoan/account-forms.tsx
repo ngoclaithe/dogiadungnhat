@@ -26,8 +26,8 @@ export function AccountForms() {
       <AccountDashboard
         user={user}
         nextPath={nextPath}
-        onLogout={() => {
-          logout();
+        onLogout={async () => {
+          await logout();
           router.replace("/tai-khoan");
         }}
         onUpdate={updateProfile}
@@ -105,9 +105,11 @@ function AuthForms({
 
   return (
     <div className="mx-auto max-w-md rounded-[2rem] border border-line bg-cream p-6 sm:p-8">
-      {nextPath === "/thanh-toan" ? (
+      {nextPath ? (
         <p className="mb-5 rounded-xl bg-paper px-4 py-3 text-sm text-stone">
-          Đăng nhập để lưu đơn vào tài khoản, rồi quay lại thanh toán.
+          {nextPath === "/thanh-toan"
+            ? "Đăng nhập để lưu đơn vào tài khoản, rồi quay lại thanh toán."
+            : "Đăng nhập để tiếp tục."}
         </p>
       ) : null}
       <div className="mb-6 grid grid-cols-2 gap-2">
@@ -179,7 +181,7 @@ function AccountDashboard({
 }: {
   user: { email: string; name: string | null; phone: string | null };
   nextPath: string;
-  onLogout: () => void;
+  onLogout: () => void | Promise<void>;
   onUpdate: (payload: { name?: string; phone?: string }) => Promise<unknown>;
 }) {
   const [orders, setOrders] = useState<Order[]>([]);

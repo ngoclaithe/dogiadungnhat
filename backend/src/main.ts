@@ -1,10 +1,12 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+  app.use(cookieParser());
   const origins = (process.env.FRONTEND_URL ?? 'http://localhost:3000')
     .split(',')
     .map((item) => item.trim())

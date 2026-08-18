@@ -62,9 +62,15 @@ model User {
   passwordHash String
   name         String?
   phone        String?
+  role         UserRole @default(CUSTOMER)
   orders       Order[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
 }
 
 enum OrderStatus {

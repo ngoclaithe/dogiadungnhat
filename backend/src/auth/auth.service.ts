@@ -29,7 +29,7 @@ export class AuthService {
         phone: dto.phone?.trim() || null,
       },
     });
-    return this.issue(user.id, user.email, user.name, user.phone);
+    return this.issue(user.id, user.email, user.name, user.phone, user.role);
   }
 
   async login(dto: LoginDto) {
@@ -39,7 +39,7 @@ export class AuthService {
     if (!user || !(await bcrypt.compare(dto.password, user.passwordHash))) {
       throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
     }
-    return this.issue(user.id, user.email, user.name, user.phone);
+    return this.issue(user.id, user.email, user.name, user.phone, user.role);
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
@@ -49,7 +49,7 @@ export class AuthService {
         name: dto.name?.trim() || null,
         phone: dto.phone?.trim() || null,
       },
-      select: { id: true, email: true, name: true, phone: true },
+      select: { id: true, email: true, name: true, phone: true, role: true },
     });
   }
 
@@ -58,8 +58,9 @@ export class AuthService {
     email: string,
     name: string | null,
     phone: string | null,
+    role: string,
   ) {
     const accessToken = this.jwt.sign({ sub: id, email });
-    return { accessToken, user: { id, email, name, phone } };
+    return { accessToken, user: { id, email, name, phone, role } };
   }
 }

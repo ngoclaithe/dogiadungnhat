@@ -10,14 +10,10 @@ export const metadata: Metadata = {
 
 export default function AccountPage() {
   return (
-    <Container className="max-w-2xl py-12">
-      <h1 className="font-display text-5xl">Tài khoản</h1>
-      <p className="mt-3 mb-8 text-stone">
-        Đăng nhập để lưu đơn, theo dõi trạng thái giao lắp, hoặc đăng ký email mới.
-      </p>
+    <Container className="py-10 sm:py-12">
       <Suspense
         fallback={
-          <div className="rounded-[2rem] border border-line bg-cream p-8 text-sm text-stone">
+          <div className="mx-auto max-w-md rounded-[2rem] border border-line bg-cream p-8 text-sm text-stone">
             Đang tải tài khoản...
           </div>
         }

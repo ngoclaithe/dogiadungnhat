@@ -59,21 +59,15 @@ export function SiteHeader({ categories }: { categories: Category[] }) {
 
       <div className="border-b border-line bg-cream/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-4 sm:px-6">
-          <Link href="/" className="flex shrink-0 items-center gap-3">
+          <Link href="/" className="shrink-0">
             <Image
               src={SITE.logo}
               alt={SITE.name}
-              width={52}
-              height={52}
-              className="h-11 w-11 shrink-0 rounded-full object-cover"
+              width={64}
+              height={64}
+              className="h-14 w-14 shrink-0 rounded-full object-cover sm:h-16 sm:w-16"
               priority
             />
-            <span className="leading-tight">
-              <span className="block font-display text-xl text-ink">{SITE.name}</span>
-              <span className="block text-[11px] uppercase tracking-[0.16em] text-stone">
-                {SITE.tagline}
-              </span>
-            </span>
           </Link>
 
           <form onSubmit={onSearch} className="hidden flex-1 md:flex">

@@ -1,11 +1,11 @@
 "use client";
 
 import { useAuth } from "@/components/auth-provider";
-import { Container } from "@/components/ui";
 import { api } from "@/lib/api";
 import { formatDate, formatPrice, orderStatusLabel } from "@/lib/format";
 import type { CmsPage, Order, Post } from "@/lib/types";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 const ORDER_STATUSES = ["PENDING", "CONFIRMED", "SHIPPING", "COMPLETED", "CANCELLED"] as const;
@@ -14,19 +14,16 @@ type Tab = "orders" | "pages" | "posts";
 
 export default function AdminPage() {
   const { user, ready } = useAuth();
-  const [tab, setTab] = useState<Tab>("orders");
+  const searchParams = useSearchParams();
+  const tab = (searchParams.get("tab") as Tab | null) || "orders";
 
   if (!ready) {
-    return (
-      <Container className="py-12">
-        <p className="text-stone">Đang tải...</p>
-      </Container>
-    );
+    return <p className="text-stone">Đang tải...</p>;
   }
 
   if (!user || user.role !== "ADMIN") {
     return (
-      <Container className="max-w-md py-16 text-center">
+      <div className="mx-auto max-w-md py-16 text-center">
         <p className="font-display text-3xl">Quản trị</p>
         <p className="mt-3 text-stone">Bạn cần đăng nhập tài khoản admin để truy cập.</p>
         <Link
@@ -35,47 +32,59 @@ export default function AdminPage() {
         >
           Đăng nhập
         </Link>
-      </Container>
+      </div>
+    );
+  }
+
+  if (!searchParams.get("tab")) {
+    return (
+      <div className="grid gap-4 sm:grid-cols-3">
+        {(
+          [
+            ["orders", "Đơn hàng", "Theo dõi và cập nhật trạng thái giao lắp"],
+            ["pages", "Trang nội dung", "Chỉnh sửa chính sách, hướng dẫn mua hàng"],
+            ["posts", "Tin tức", "Cập nhật bài viết tin tức"],
+          ] as const
+        ).map(([key, title, desc]) => (
+          <Link
+            key={key}
+            href={`/admin?tab=${key}`}
+            className="rounded-2xl border border-line bg-cream p-5 transition hover:border-ink"
+          >
+            <p className="font-medium">{title}</p>
+            <p className="mt-2 text-sm text-stone">{desc}</p>
+          </Link>
+        ))}
+      </div>
     );
   }
 
   return (
-    <Container className="py-10 sm:py-12">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-copper">Quản trị</p>
-          <h1 className="font-display text-4xl">Bảng điều khiển</h1>
-        </div>
-        <Link href="/" className="text-sm text-matcha underline">
-          Về trang chủ
-        </Link>
-      </div>
-
-      <div className="mb-6 flex flex-wrap gap-2">
+    <>
+      <div className="mb-6 flex flex-wrap gap-2 lg:hidden">
         {(
           [
             ["orders", "Đơn hàng"],
-            ["pages", "Trang nội dung"],
+            ["pages", "Trang"],
             ["posts", "Tin tức"],
           ] as const
         ).map(([key, label]) => (
-          <button
+          <Link
             key={key}
-            type="button"
-            onClick={() => setTab(key)}
+            href={`/admin?tab=${key}`}
             className={`rounded-full px-4 py-2 text-sm font-medium ${
               tab === key ? "bg-ink text-cream" : "border border-line bg-cream"
             }`}
           >
             {label}
-          </button>
+          </Link>
         ))}
       </div>
 
       {tab === "orders" ? <OrdersPanel /> : null}
       {tab === "pages" ? <PagesPanel /> : null}
       {tab === "posts" ? <PostsPanel /> : null}
-    </Container>
+    </>
   );
 }
 

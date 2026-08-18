@@ -1,9 +1,7 @@
 import { AuthProvider } from "@/components/auth-provider";
 import { CartProvider } from "@/components/cart-provider";
 import { JsonLd } from "@/components/json-ld";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
-import { SupportWidget } from "@/components/support-widget";
+import { StoreChrome } from "@/components/store-chrome";
 import { api } from "@/lib/api";
 import { SITE } from "@/lib/constants";
 import type { Category } from "@/lib/types";
@@ -64,14 +62,13 @@ export default async function RootLayout({
 
   return (
     <html lang="vi">
-      <body className={`${body.variable} ${display.variable} paper-grid antialiased`}>
+      <body className={`${body.variable} ${display.variable} antialiased`}>
         <JsonLd />
         <AuthProvider>
           <CartProvider>
-            <SiteHeader categories={nav} />
-            <main className="min-h-[70vh]">{children}</main>
-            <SiteFooter categories={categories} />
-            <SupportWidget />
+            <StoreChrome categories={categories} nav={nav}>
+              {children}
+            </StoreChrome>
           </CartProvider>
         </AuthProvider>
       </body>

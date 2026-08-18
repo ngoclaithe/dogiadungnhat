@@ -1,4 +1,5 @@
 import type {
+  AuthUser,
   Category,
   CmsPage,
   Order,
@@ -8,6 +9,8 @@ import type {
   SitemapPayload,
 } from "./types";
 
+export const TOKEN_KEY = "ndn-token";
+
 function baseUrl() {
   if (typeof window === "undefined") {
     return process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
@@ -15,14 +18,25 @@ function baseUrl() {
   return process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 }
 
+function tokenFromStorage() {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(TOKEN_KEY);
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const isServer = typeof window === "undefined";
+  const token = tokenFromStorage();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+  if (token && !headers.Authorization) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${baseUrl()}${path}`, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
+    headers,
     ...(isServer && !init?.cache ? { next: { revalidate: 60 } } : {}),
   });
   const data = await res.json().catch(() => ({}));
@@ -33,6 +47,20 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
   return data as T;
 }
+
+export type AuthPayload = {
+  accessToken: string;
+  user: AuthUser;
+};
+
+export type CreateOrderPayload = {
+  customerName: string;
+  phone: string;
+  email?: string;
+  address: string;
+  note?: string;
+  items: { productId: string; quantity: number }[];
+};
 
 export const api = {
   health: () => request<{ ok: boolean }>("/health"),
@@ -57,26 +85,31 @@ export const api = {
   pages: () => request<CmsPage[]>("/pages"),
   page: (slug: string) => request<CmsPage>(`/pages/${slug}`),
   login: (email: string, password: string) =>
-    request<{ accessToken: string; user: { id: string; email: string; name: string | null } }>(
-      "/auth/login",
-      { method: "POST", body: JSON.stringify({ email, password }), cache: "no-store" },
-    ),
-  register: (payload: { email: string; password: string; name?: string; phone?: string }) =>
-    request<{ accessToken: string; user: { id: string; email: string; name: string | null } }>(
-      "/auth/register",
-      { method: "POST", body: JSON.stringify(payload), cache: "no-store" },
-    ),
-  me: (token: string) =>
-    request("/auth/me", {
+    request<AuthPayload>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
       cache: "no-store",
-      headers: { Authorization: `Bearer ${token}` },
     }),
-  createOrder: (payload: unknown) =>
+  register: (payload: { email: string; password: string; name?: string; phone?: string }) =>
+    request<AuthPayload>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    }),
+  me: () => request<AuthUser>("/auth/me", { cache: "no-store" }),
+  updateProfile: (payload: { name?: string; phone?: string }) =>
+    request<AuthUser>("/auth/me", {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    }),
+  createOrder: (payload: CreateOrderPayload) =>
     request<Order>("/orders", {
       method: "POST",
       body: JSON.stringify(payload),
       cache: "no-store",
     }),
+  myOrders: () => request<Order[]>("/orders/mine", { cache: "no-store" }),
   trackOrder: (code: string) =>
     request<Order>(`/orders/track/${encodeURIComponent(code)}`, { cache: "no-store" }),
   contact: (payload: unknown) =>

@@ -8,6 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/optional-jwt-auth.guard';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrdersService } from './orders.service';
 
@@ -15,18 +16,13 @@ import { OrdersService } from './orders.service';
 export class OrdersController {
   constructor(private readonly orders: OrdersService) {}
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Post()
-  create(@Body() dto: CreateOrderDto) {
-    return this.orders.create(dto);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('mine')
-  createMine(
+  create(
     @Body() dto: CreateOrderDto,
-    @Req() req: { user: { id: string } },
+    @Req() req: { user?: { id: string } },
   ) {
-    return this.orders.create(dto, req.user.id);
+    return this.orders.create(dto, req.user?.id);
   }
 
   @Get('track/:code')

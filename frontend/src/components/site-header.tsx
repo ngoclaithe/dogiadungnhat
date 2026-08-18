@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/components/auth-provider";
 import { useCart } from "@/components/cart-provider";
 import { SITE } from "@/lib/constants";
 import type { Category } from "@/lib/types";
@@ -18,6 +19,7 @@ import { FormEvent, useState } from "react";
 
 export function SiteHeader({ categories }: { categories: Category[] }) {
   const { count } = useCart();
+  const { user } = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -45,7 +47,7 @@ export function SiteHeader({ categories }: { categories: Category[] }) {
               Kiểm tra đơn hàng
             </Link>
             <Link href="/tai-khoan" className="hover:text-cream">
-              Tài khoản
+              {user ? user.name || "Tài khoản" : "Tài khoản"}
             </Link>
             <Link href="/lien-he" className="hover:text-cream">
               Liên hệ
@@ -102,8 +104,15 @@ export function SiteHeader({ categories }: { categories: Category[] }) {
               href="/tai-khoan"
               className="grid h-10 w-10 place-items-center rounded-full border border-line"
               aria-label="Tài khoản"
+              title={user ? user.email : "Đăng nhập"}
             >
-              <UserRound className="h-4 w-4" />
+              {user ? (
+                <span className="text-xs font-semibold">
+                  {(user.name || user.email).slice(0, 1).toUpperCase()}
+                </span>
+              ) : (
+                <UserRound className="h-4 w-4" />
+              )}
             </Link>
             <Link
               href="/gio-hang"

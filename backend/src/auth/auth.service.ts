@@ -6,7 +6,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
-import { LoginDto, RegisterDto } from './dto/auth.dto';
+import { LoginDto, RegisterDto, UpdateProfileDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,8 +25,8 @@ export class AuthService {
       data: {
         email: dto.email.toLowerCase(),
         passwordHash: await bcrypt.hash(dto.password, 10),
-        name: dto.name,
-        phone: dto.phone,
+        name: dto.name?.trim() || null,
+        phone: dto.phone?.trim() || null,
       },
     });
     return this.issue(user.id, user.email, user.name, user.phone);
@@ -40,6 +40,17 @@ export class AuthService {
       throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
     }
     return this.issue(user.id, user.email, user.name, user.phone);
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: dto.name?.trim() || null,
+        phone: dto.phone?.trim() || null,
+      },
+      select: { id: true, email: true, name: true, phone: true },
+    });
   }
 
   private issue(

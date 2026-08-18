@@ -1,6 +1,7 @@
 import { TrackForm } from "@/app/kiem-tra-don-hang/track-form";
 import { Container } from "@/components/ui";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Kiểm tra đơn hàng",
@@ -15,7 +16,9 @@ export default function TrackPage() {
       <p className="mt-3 mb-8 text-stone">
         Mã đơn được gửi sau khi xác nhận. Demo: <strong>ND20260817001</strong>
       </p>
-      <TrackForm />
+      <Suspense fallback={<p className="text-sm text-stone">Đang tải form tra cứu...</p>}>
+        <TrackForm />
+      </Suspense>
     </Container>
   );
 }

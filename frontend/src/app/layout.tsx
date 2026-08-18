@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/components/auth-provider";
 import { CartProvider } from "@/components/cart-provider";
 import { JsonLd } from "@/components/json-ld";
 import { SiteFooter } from "@/components/site-footer";
@@ -65,12 +66,14 @@ export default async function RootLayout({
     <html lang="vi">
       <body className={`${body.variable} ${display.variable} paper-grid antialiased`}>
         <JsonLd />
-        <CartProvider>
-          <SiteHeader categories={nav} />
-          <main className="min-h-[70vh]">{children}</main>
-          <SiteFooter categories={categories} />
-          <SupportWidget />
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <SiteHeader categories={nav} />
+            <main className="min-h-[70vh]">{children}</main>
+            <SiteFooter categories={categories} />
+            <SupportWidget />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

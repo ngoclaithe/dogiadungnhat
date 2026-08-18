@@ -49,7 +49,7 @@ export function ProductCard({ product }: { product: Product }) {
           ) : null}
         </div>
         <div className="mt-4">
-          <AddToCartButton product={product} className="w-full" />
+          <AddToCartButton product={product} className="w-full" compact />
         </div>
       </div>
     </article>

@@ -1,4 +1,4 @@
-import { AddToCartButton } from "@/components/add-to-cart-button";
+import { ProductActions } from "@/components/add-to-cart-button";
 import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
 import { Container, SectionHeading } from "@/components/ui";
@@ -106,11 +106,11 @@ export default async function ProductPage({ params }: Props) {
               })()}
             </p>
           ) : null}
-          <div className="mt-8 flex flex-wrap gap-3">
-            <AddToCartButton product={product} className="px-8 py-3" />
+          <div className="mt-8">
+            <ProductActions product={product} />
             <a
               href={`tel:${SITE.phoneRaw}`}
-              className="rounded-full border border-line px-6 py-3 text-sm font-semibold"
+              className="mt-3 inline-block rounded-full border border-line px-6 py-3 text-sm font-semibold"
             >
               Gọi {SITE.phoneDisplay}
             </a>

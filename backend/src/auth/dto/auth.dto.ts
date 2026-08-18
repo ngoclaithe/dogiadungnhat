@@ -24,3 +24,13 @@ export class LoginDto {
   @IsString()
   password: string;
 }
+
+export class UpdateProfileDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+}

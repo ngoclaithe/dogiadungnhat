@@ -20,6 +20,9 @@ export class OrdersService {
 
     const items = dto.items.map((item) => {
       const product = products.find((p) => p.id === item.productId)!;
+      if (!product.inStock) {
+        throw new BadRequestException(`${product.name} hiện không còn hàng`);
+      }
       const price = product.price ?? 0;
       return {
         productId: product.id,
@@ -34,11 +37,11 @@ export class OrdersService {
     return this.prisma.order.create({
       data: {
         code,
-        customerName: dto.customerName,
-        phone: dto.phone,
-        email: dto.email,
-        address: dto.address,
-        note: dto.note,
+        customerName: dto.customerName.trim(),
+        phone: dto.phone.trim(),
+        email: dto.email?.trim() || null,
+        address: dto.address.trim(),
+        note: dto.note?.trim() || null,
         total,
         userId,
         items: { create: items },

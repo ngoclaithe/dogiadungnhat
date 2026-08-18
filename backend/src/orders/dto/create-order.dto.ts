@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsString,
   Min,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 
@@ -22,16 +23,20 @@ export class OrderItemDto {
 
 export class CreateOrderDto {
   @IsString()
+  @MinLength(2)
   customerName: string;
 
   @IsString()
+  @MinLength(8)
   phone: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsEmail()
   email?: string;
 
   @IsString()
+  @MinLength(8)
   address: string;
 
   @IsOptional()

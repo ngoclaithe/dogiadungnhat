@@ -3,22 +3,40 @@
 import { api } from "@/lib/api";
 import { formatPrice, orderStatusLabel } from "@/lib/format";
 import type { Order } from "@/lib/types";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export function TrackForm() {
+  const searchParams = useSearchParams();
+  const preset = (searchParams.get("code") || "").trim().toUpperCase();
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function lookup(code: string) {
+    const normalized = code.trim().toUpperCase();
+    if (!normalized) return;
+    setError("");
+    setOrder(null);
+    setLoading(true);
+    try {
+      setOrder(await api.trackOrder(normalized));
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (preset) void lookup(preset);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preset]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const code = String(new FormData(event.currentTarget).get("code") || "");
-    setError("");
-    setOrder(null);
-    try {
-      setOrder(await api.trackOrder(code));
-    } catch (err) {
-      setError((err as Error).message);
-    }
+    await lookup(code);
   }
 
   return (
@@ -27,11 +45,16 @@ export function TrackForm() {
         <input
           name="code"
           required
+          defaultValue={preset}
           placeholder="Mã đơn, ví dụ ND20260817001"
           className="w-full rounded-full border border-line bg-cream px-5 py-3 uppercase"
         />
-        <button type="submit" className="rounded-full bg-ink px-6 py-3 text-sm font-semibold text-cream">
-          Tra cứu
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded-full bg-ink px-6 py-3 text-sm font-semibold text-cream disabled:opacity-60"
+        >
+          {loading ? "Đang tra..." : "Tra cứu"}
         </button>
       </form>
       {error ? <p className="mt-4 text-sm text-copper">{error}</p> : null}

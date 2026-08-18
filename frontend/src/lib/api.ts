@@ -1,5 +1,6 @@
 import type {
   AuthUser,
+  CartItem,
   Category,
   CmsPage,
   Order,
@@ -104,6 +105,23 @@ export const api = {
       cache: "no-store",
     }),
   myOrders: () => request<Order[]>("/orders/mine", { cache: "no-store" }),
+  getCart: () => request<CartItem[]>("/cart", { cache: "no-store" }),
+  upsertCartItem: (productId: string, quantity: number) =>
+    request<CartItem[]>("/cart/items", {
+      method: "PUT",
+      body: JSON.stringify({ productId, quantity }),
+      cache: "no-store",
+    }),
+  removeCartItem: (productId: string) =>
+    request<CartItem[]>(`/cart/items/${productId}`, {
+      method: "DELETE",
+      cache: "no-store",
+    }),
+  clearCart: () =>
+    request<CartItem[]>("/cart", {
+      method: "DELETE",
+      cache: "no-store",
+    }),
   trackOrder: (code: string) =>
     request<Order>(`/orders/track/${encodeURIComponent(code)}`, { cache: "no-store" }),
   adminOrders: () => request<Order[]>("/admin/orders", { cache: "no-store" }),

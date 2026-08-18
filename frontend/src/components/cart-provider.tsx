@@ -1,46 +1,115 @@
 "use client";
 
+import { useAuth } from "@/components/auth-provider";
+import { api } from "@/lib/api";
+import type { CartItem, Product } from "@/lib/types";
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
-import type { CartItem, Product } from "@/lib/types";
 
 type CartContextValue = {
   items: CartItem[];
   count: number;
   subtotal: number;
   ready: boolean;
-  add: (product: Product, quantity?: number) => void;
-  setQty: (productId: string, quantity: number) => void;
-  remove: (productId: string) => void;
-  clear: () => void;
+  loggedIn: boolean;
+  add: (product: Product, quantity?: number) => Promise<void>;
+  setQty: (productId: string, quantity: number) => Promise<void>;
+  remove: (productId: string) => Promise<void>;
+  clear: () => Promise<void>;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
-const STORAGE_KEY = "ndn-cart";
+const LEGACY_STORAGE_KEY = "ndn-cart";
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { user, ready: authReady } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setItems(JSON.parse(raw) as CartItem[]);
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
     } catch {
       /* ignore */
     }
-    setReady(true);
   }, []);
 
   useEffect(() => {
-    if (ready) localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items, ready]);
+    if (!authReady) return;
+
+    if (!user) {
+      setItems([]);
+      setReady(true);
+      return;
+    }
+
+    let cancelled = false;
+    setReady(false);
+    api
+      .getCart()
+      .then((data) => {
+        if (!cancelled) setItems(data);
+      })
+      .catch(() => {
+        if (!cancelled) setItems([]);
+      })
+      .finally(() => {
+        if (!cancelled) setReady(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authReady, user?.id]);
+
+  const applyItems = useCallback((next: CartItem[]) => {
+    setItems(next);
+  }, []);
+
+  const add = useCallback(
+    async (product: Product, quantity = 1) => {
+      if (!user) return;
+      const existing = items.find((item) => item.productId === product.id);
+      const nextQty = (existing?.quantity ?? 0) + quantity;
+      const next = await api.upsertCartItem(product.id, nextQty);
+      applyItems(next);
+    },
+    [applyItems, items, user],
+  );
+
+  const setQty = useCallback(
+    async (productId: string, quantity: number) => {
+      if (!user) return;
+      const next = await api.upsertCartItem(productId, quantity);
+      applyItems(next);
+    },
+    [applyItems, user],
+  );
+
+  const remove = useCallback(
+    async (productId: string) => {
+      if (!user) return;
+      const next = await api.removeCartItem(productId);
+      applyItems(next);
+    },
+    [applyItems, user],
+  );
+
+  const clear = useCallback(async () => {
+    if (!user) {
+      setItems([]);
+      return;
+    }
+    const next = await api.clearCart();
+    applyItems(next);
+  }, [applyItems, user]);
 
   const value = useMemo<CartContextValue>(() => {
     const count = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -52,44 +121,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       items,
       count,
       subtotal,
-      ready,
-      add: (product, quantity = 1) => {
-        setItems((current) => {
-          const found = current.find((item) => item.productId === product.id);
-          if (found) {
-            return current.map((item) =>
-              item.productId === product.id
-                ? { ...item, quantity: item.quantity + quantity }
-                : item,
-            );
-          }
-          return [
-            ...current,
-            {
-              productId: product.id,
-              slug: product.slug,
-              name: product.name,
-              price: product.price,
-              image: product.images[0]?.url ?? null,
-              quantity,
-            },
-          ];
-        });
-      },
-      setQty: (productId, quantity) => {
-        setItems((current) =>
-          current
-            .map((item) =>
-              item.productId === productId ? { ...item, quantity } : item,
-            )
-            .filter((item) => item.quantity > 0),
-        );
-      },
-      remove: (productId) =>
-        setItems((current) => current.filter((item) => item.productId !== productId)),
-      clear: () => setItems([]),
+      ready: authReady && ready,
+      loggedIn: Boolean(user),
+      add,
+      setQty,
+      remove,
+      clear,
     };
-  }, [items, ready]);
+  }, [add, authReady, clear, items, ready, remove, setQty, user]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

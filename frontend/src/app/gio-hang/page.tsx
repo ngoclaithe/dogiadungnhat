@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/components/auth-provider";
 import { useCart } from "@/components/cart-provider";
 import { Container } from "@/components/ui";
 import { formatPrice } from "@/lib/format";
@@ -8,13 +9,31 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function CartPage() {
+  const { user, ready: authReady } = useAuth();
   const { items, subtotal, setQty, remove, ready } = useCart();
 
-  if (!ready) {
+  if (!ready || !authReady) {
     return (
       <Container className="py-12">
         <h1 className="font-display text-5xl">Giỏ hàng</h1>
         <p className="mt-8 text-stone">Đang tải giỏ hàng...</p>
+      </Container>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Container className="py-12">
+        <h1 className="font-display text-5xl">Giỏ hàng</h1>
+        <div className="mt-8 max-w-lg rounded-[2rem] border border-line bg-cream p-8">
+          <p className="text-stone">Giỏ hàng được lưu theo từng tài khoản. Vui lòng đăng nhập để xem và mua hàng.</p>
+          <Link
+            href="/tai-khoan?next=/gio-hang"
+            className="mt-5 inline-block rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-cream"
+          >
+            Đăng nhập
+          </Link>
+        </div>
       </Container>
     );
   }

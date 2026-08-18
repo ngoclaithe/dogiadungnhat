@@ -1,10 +1,16 @@
 "use client";
 
+import { useAuth } from "@/components/auth-provider";
 import { useCart } from "@/components/cart-provider";
 import type { Product } from "@/lib/types";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+
+function loginHref(pathname: string, search: string) {
+  const next = `${pathname}${search}`;
+  return `/tai-khoan?next=${encodeURIComponent(next)}`;
+}
 
 export function AddToCartButton({
   product,
@@ -18,18 +24,28 @@ export function AddToCartButton({
   compact?: boolean;
 }) {
   const { add } = useCart();
+  const { user } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [done, setDone] = useState(false);
+
+  async function handleAdd() {
+    if (!user) {
+      router.push(loginHref(pathname, searchParams.toString() ? `?${searchParams}` : ""));
+      return;
+    }
+    await add(product, quantity);
+    setDone(true);
+    setTimeout(() => setDone(false), 1800);
+  }
 
   return (
     <div className={`flex flex-col items-stretch gap-2 ${className}`}>
       <button
         type="button"
         disabled={!product.inStock}
-        onClick={() => {
-          add(product, quantity);
-          setDone(true);
-          setTimeout(() => setDone(false), 1800);
-        }}
+        onClick={handleAdd}
         className="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-ink-soft disabled:cursor-not-allowed disabled:opacity-50"
       >
         {!product.inStock ? "Tạm hết hàng" : done ? "Đã thêm vào giỏ" : "Thêm vào giỏ"}
@@ -45,9 +61,35 @@ export function AddToCartButton({
 
 export function ProductActions({ product }: { product: Product }) {
   const { add } = useCart();
+  const { user } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [qty, setQty] = useState(1);
   const [done, setDone] = useState(false);
+
+  function goLogin() {
+    router.push(loginHref(pathname, searchParams.toString() ? `?${searchParams}` : ""));
+  }
+
+  async function handleAdd() {
+    if (!user) {
+      goLogin();
+      return;
+    }
+    await add(product, qty);
+    setDone(true);
+    setTimeout(() => setDone(false), 1800);
+  }
+
+  async function handleBuyNow() {
+    if (!user) {
+      goLogin();
+      return;
+    }
+    await add(product, qty);
+    router.push("/thanh-toan");
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -77,11 +119,7 @@ export function ProductActions({ product }: { product: Product }) {
         <button
           type="button"
           disabled={!product.inStock}
-          onClick={() => {
-            add(product, qty);
-            setDone(true);
-            setTimeout(() => setDone(false), 1800);
-          }}
+          onClick={handleAdd}
           className="rounded-full bg-ink px-8 py-3 text-sm font-semibold text-cream disabled:cursor-not-allowed disabled:opacity-50"
         >
           {!product.inStock ? "Tạm hết hàng" : done ? "Đã thêm vào giỏ" : "Thêm vào giỏ"}
@@ -89,10 +127,7 @@ export function ProductActions({ product }: { product: Product }) {
         <button
           type="button"
           disabled={!product.inStock}
-          onClick={() => {
-            add(product, qty);
-            router.push("/thanh-toan");
-          }}
+          onClick={handleBuyNow}
           className="rounded-full border border-line px-8 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
         >
           Mua ngay

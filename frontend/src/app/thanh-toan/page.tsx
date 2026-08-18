@@ -56,6 +56,23 @@ export default function CheckoutPage() {
     );
   }
 
+  if (!user) {
+    return (
+      <Container className="py-12">
+        <h1 className="font-display text-4xl">Thanh toán</h1>
+        <div className="mt-6 max-w-lg rounded-[2rem] border border-line bg-cream p-8">
+          <p className="text-stone">Vui lòng đăng nhập để thanh toán giỏ hàng của bạn.</p>
+          <Link
+            href="/tai-khoan?next=/thanh-toan"
+            className="mt-5 inline-block rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-cream"
+          >
+            Đăng nhập
+          </Link>
+        </div>
+      </Container>
+    );
+  }
+
   if (!items.length && !code) {
     return (
       <Container className="py-12">
@@ -106,16 +123,7 @@ export default function CheckoutPage() {
         <p className="mt-3 mb-6 text-stone">
           COD hoặc chuyển khoản sau khi xác nhận. Không thu phí ẩn trên web.
         </p>
-        {authReady && !user ? (
-          <p className="mb-6 rounded-2xl border border-line bg-cream px-4 py-3 text-sm text-stone">
-            Đã có tài khoản?{" "}
-            <Link href="/tai-khoan?next=/thanh-toan" className="font-medium text-matcha underline">
-              Đăng nhập
-            </Link>{" "}
-            để lưu đơn và tự điền thông tin.
-          </p>
-        ) : null}
-        <form key={user?.id ?? "guest"} onSubmit={onSubmit} className="grid gap-4">
+        <form key={user.id} onSubmit={onSubmit} className="grid gap-4">
           <input
             name="customerName"
             required

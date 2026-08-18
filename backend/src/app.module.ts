@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
+import { CartModule } from './cart/cart.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ContactModule } from './contact/contact.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
@@ -22,6 +23,7 @@ import { ProductsModule } from './products/products.module';
     PagesModule,
     AuthModule,
     AdminModule,
+    CartModule,
     OrdersModule,
     ContactModule,
     NewsletterModule,
